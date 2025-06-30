@@ -1,0 +1,21 @@
+{
+  "name": "task-turtle",
+  "version": "1.0.0",
+  "description": "discord bot that encourage complete tasks",
+  "main": "index.mjs",
+  "scripts": {
+    "start" : "node index.mjs"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "@discordjs/voice": "^0.16.1",
+    "ytdl-core": "^4.11.5",
+    "express": "^4.19.2",
+    "sequelize": "^6.37.7",
+    "sqlite3": "^5.1.7"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node"
+  ]
+}
