@@ -1,5 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
+import { walk } from "https://deno.land/std@0.208.0/fs/walk.ts";
+import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
 import express from "express";
 import { 
   Client, 
@@ -16,7 +16,6 @@ const app = express();
 app.get("/", (req, res) => res.send("Bot is running!"));
 app.listen(3000);
 
-
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -30,32 +29,24 @@ const client = new Client({
 
 client.commands = new Collection();
 
-const commandsPath = path.join(process.cwd(), "commands");
-const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith(".mjs"));
-
-for (const file of commandFiles) {
-  const filePath = path.join(commandsPath, file);
-  import(filePath).then((module) => {
-    if (module.data && module.data.name) {
-      client.commands.set(module.data.name, module);
-    } else {
-      console.warn(`Skipping command file ${file} due to missing or invalid data.name.`);
-    }
-  }).catch(error => {
-    console.error(`Failed to load command file ${file}:`, error);
-  });
+// Deno用のコマンド読み込み
+const commandsPath = join(Deno.cwd(), "commands");
+for await (const entry of walk(commandsPath, { exts: [".mjs"] })) {
+  const module = await import(`file://${entry.path}`);
+  if (module.data && module.data.name) {
+    client.commands.set(module.data.name, module);
+  } else {
+    console.warn(`Skipping command file ${entry.name} due to missing or invalid data.name.`);
+  }
 }
 
 const handlers = new Map();
 
-const handlersPath = path.join(process.cwd(), "handlers");
-const handlerFiles = fs.readdirSync(handlersPath).filter((file) => file.endsWith(".mjs"));
-
-for (const file of handlerFiles) {
-  const filePath = path.join(handlersPath, file);
-  import(filePath).then((module) => {
-    handlers.set(file.slice(0, -4), module);
-  });
+// Deno用のハンドラー読み込み
+const handlersPath = join(Deno.cwd(), "handlers");
+for await (const entry of walk(handlersPath, { exts: [".mjs"] })) {
+  const module = await import(`file://${entry.path}`);
+  handlers.set(entry.name.slice(0, -4), module);
 }
 
 client.on("interactionCreate", async (interaction) => {
@@ -72,4 +63,4 @@ client.on("ready", async () => {
 });
 
 CommandsRegister();
-client.login(process.env.TOKEN);
+client.login(Deno.env.get("TOKEN"));
