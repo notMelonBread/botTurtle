@@ -39,53 +39,56 @@ const client = new Client({
 });
 
 client.commands = new Collection();
+const handlers = new Map();
 
 // コマンド読み込み関数
 async function loadCommands() {
   try {
+    console.log("=== Loading Commands ===");
     console.log("Current working directory:", Deno.cwd());
     
-    // 方法1: walkを使用
+    // 直接インポートで確実に読み込み
     try {
-      const commandsPath = join(Deno.cwd(), "commands");
-      console.log("Loading commands from:", commandsPath);
-      
-      for await (const entry of walk(commandsPath, { exts: [".mjs"] })) {
-        console.log("Loading command file:", entry.path);
-        const module = await import(`file://${entry.path}`);
-        if (module.data && module.data.name) {
-          client.commands.set(module.data.name, module);
-          console.log(`Loaded command: ${module.data.name}`);
-        } else {
-          console.warn(`Skipping command file ${entry.name} due to missing or invalid data.name.`);
-        }
+      console.log("Loading ping.mjs...");
+      const pingModule = await import("./commands/ping.mjs");
+      if (pingModule.data && pingModule.data.name) {
+        client.commands.set(pingModule.data.name, pingModule);
+        console.log(`✓ Loaded command: ${pingModule.data.name}`);
+      } else {
+        console.error("✗ pingModule.data or pingModule.data.name is missing");
       }
-    } catch (error) {
-      console.log("Walk method failed, trying direct imports...");
-      
-      // 方法2: 直接インポート
-      try {
-        const playModule = await import("./commands/playMusic.mjs");
-        if (playModule.data && playModule.data.name) {
-          client.commands.set(playModule.data.name, playModule);
-          console.log(`Loaded command: ${playModule.data.name}`);
-        }
-      } catch (e) {
-        console.error("Failed to load playMusic.mjs:", e);
+    } catch (e) {
+      console.error("✗ Failed to load ping.mjs:", e);
+    }
+    
+    try {
+      console.log("Loading playMusic.mjs...");
+      const playModule = await import("./commands/playMusic.mjs");
+      if (playModule.data && playModule.data.name) {
+        client.commands.set(playModule.data.name, playModule);
+        console.log(`✓ Loaded command: ${playModule.data.name}`);
+      } else {
+        console.error("✗ playModule.data or playModule.data.name is missing");
       }
-      
-      try {
-        const stopModule = await import("./commands/stopMusic.mjs");
-        if (stopModule.data && stopModule.data.name) {
-          client.commands.set(stopModule.data.name, stopModule);
-          console.log(`Loaded command: ${stopModule.data.name}`);
-        }
-      } catch (e) {
-        console.error("Failed to load stopMusic.mjs:", e);
+    } catch (e) {
+      console.error("✗ Failed to load playMusic.mjs:", e);
+    }
+    
+    try {
+      console.log("Loading stopMusic.mjs...");
+      const stopModule = await import("./commands/stopMusic.mjs");
+      if (stopModule.data && stopModule.data.name) {
+        client.commands.set(stopModule.data.name, stopModule);
+        console.log(`✓ Loaded command: ${stopModule.data.name}`);
+      } else {
+        console.error("✗ stopModule.data or stopModule.data.name is missing");
       }
+    } catch (e) {
+      console.error("✗ Failed to load stopMusic.mjs:", e);
     }
     
     console.log(`Total loaded commands: ${client.commands.size}`);
+    console.log("Available commands:", Array.from(client.commands.keys()));
   } catch (error) {
     console.error("Error loading commands:", error);
   }
@@ -94,86 +97,108 @@ async function loadCommands() {
 // ハンドラー読み込み関数
 async function loadHandlers() {
   try {
-    console.log("Loading handlers...");
+    console.log("=== Loading Handlers ===");
     
-    // 方法1: walkを使用
     try {
-      const handlersPath = join(Deno.cwd(), "handlers");
-      console.log("Loading handlers from:", handlersPath);
-      
-      for await (const entry of walk(handlersPath, { exts: [".mjs"] })) {
-        console.log("Loading handler file:", entry.path);
-        const module = await import(`file://${entry.path}`);
-        handlers.set(entry.name.slice(0, -4), module);
-      }
-    } catch (error) {
-      console.log("Walk method failed for handlers, trying direct imports...");
-      
-      // 方法2: 直接インポート
-      try {
-        const interactionHandler = await import("./handlers/interactionCreate.mjs");
-        handlers.set("interactionCreate", interactionHandler);
-        console.log("Loaded interactionCreate handler");
-      } catch (e) {
-        console.error("Failed to load interactionCreate.mjs:", e);
-      }
-      
-      try {
-        const sendNoteHandler = await import("./handlers/sendNote.mjs");
-        handlers.set("sendNote", sendNoteHandler);
-        console.log("Loaded sendNote handler");
-      } catch (e) {
-        console.error("Failed to load sendNote.mjs:", e);
-      }
+      console.log("Loading interactionCreate.mjs...");
+      const interactionHandler = await import("./handlers/interactionCreate.mjs");
+      handlers.set("interactionCreate", interactionHandler);
+      console.log("✓ Loaded interactionCreate handler");
+    } catch (e) {
+      console.error("✗ Failed to load interactionCreate.mjs:", e);
     }
+    
+    try {
+      console.log("Loading sendNote.mjs...");
+      const sendNoteHandler = await import("./handlers/sendNote.mjs");
+      handlers.set("sendNote", sendNoteHandler);
+      console.log("✓ Loaded sendNote handler");
+    } catch (e) {
+      console.error("✗ Failed to load sendNote.mjs:", e);
+    }
+    
+    console.log("Total loaded handlers:", handlers.size);
+    console.log("Available handlers:", Array.from(handlers.keys()));
   } catch (error) {
     console.error("Error loading handlers:", error);
   }
 }
 
-const handlers = new Map();
-
+// イベントハンドラーを直接定義
 client.on("interactionCreate", async (interaction) => {
-  console.log("Interaction received:", interaction.type);
-  if (interaction.isChatInputCommand()) {
-    console.log("Command interaction:", interaction.commandName);
-    console.log("Available commands:", Array.from(client.commands.keys()));
+  console.log("=== interactionCreate event triggered ===");
+  console.log("Interaction type:", interaction.type);
+  console.log("Is chat input command:", interaction.isChatInputCommand());
+  
+  if (!interaction.isChatInputCommand()) {
+    console.log("Not a chat input command, returning");
+    return;
   }
   
-  const handler = handlers.get("interactionCreate");
-  if (handler) {
-    await handler.default(interaction);
-  } else {
-    console.error("interactionCreate handler not found");
+  console.log("Command name:", interaction.commandName);
+  console.log("Available commands:", Array.from(client.commands.keys()));
+  
+  const command = client.commands.get(interaction.commandName);
+
+  if (!command) {
+    console.error(`「${interaction.commandName}」コマンドは見つかりませんでした。`);
+    return;
+  }
+
+  console.log("Command found, executing...");
+
+  try {
+    await command.execute(interaction);
+    console.log("Command executed successfully");
+  } catch (error) {
+    console.error("Error executing command:", error);
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({ content: 'コマンド実行中にエラーが発生しました。', ephemeral: true });
+    } else {
+      await interaction.reply({ content: 'コマンド実行中にエラーが発生しました。', ephemeral: true });
+    }
   }
 });
 
 client.on("messageReactionAdd", async (reaction, user) => {
+  console.log("=== messageReactionAdd event triggered ===");
   const handler = handlers.get("sendNote");
   if (handler) {
     await handler.default(reaction, user, client);
+  } else {
+    console.error("sendNote handler not found");
   }
 });
 
 client.on("ready", async () => {
-  console.log("Bot is ready!");
+  console.log("=== Bot is ready! ===");
   await client.user.setActivity('🐢', { type: ActivityType.Custom, state: "🐢を飼育中" });
   console.log(`${client.user.tag} がログインしました！`);
   
   // ボットがログインした後にコマンドを登録
   try {
+    console.log("=== Registering commands ===");
     await CommandsRegister();
-    console.log("Commands registered successfully");
+    console.log("✓ Commands registered successfully");
   } catch (error) {
-    console.error("Error registering commands:", error);
+    console.error("✗ Error registering commands:", error);
   }
 });
 
 // 初期化
 async function initialize() {
+  console.log("=== Starting initialization ===");
   await loadCommands();
   await loadHandlers();
-  await client.login(Deno.env.get("TOKEN"));
+  
+  const token = Deno.env.get("TOKEN");
+  if (!token) {
+    console.error("✗ TOKEN environment variable not set!");
+    return;
+  }
+  
+  console.log("=== Logging in to Discord ===");
+  await client.login(token);
 }
 
 initialize().catch(console.error);
