@@ -1,0 +1,13 @@
+{
+    "imports": {
+        "discord.js": "npm:discord.js@^14.14.1",
+        "@discordjs/voice": "npm:@discordjs/voice@^0.16.1",
+        "ytdl-core": "npm:ytdl-core@^4.11.5",
+        "express": "npm:express@^4.19.2",
+        "sequelize": "npm:sequelize@^6.37.7",
+        "sqlite3": "npm:sqlite3@^5.1.7"
+    },
+    "tasks": {
+        "start": "deno run -A index.mjs"
+    }
+}
