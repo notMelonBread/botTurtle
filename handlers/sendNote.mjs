@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 
 const TARGET_REACTION = '📝';
-const NOTIFY_CHANNEL_ID = '1387730462813720577';
+const NOTIFY_CHANNEL_ID = '1387681007229993023';
 
 export default async (reaction, user, client) => {
   try {
