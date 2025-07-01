@@ -1,5 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
+import fs from "fs";
+import path from "path";
 import express from "express";
 import { 
   Client, 
@@ -9,7 +9,7 @@ import {
   Partials, 
   ActivityType, 
   EmbedBuilder 
-} from "npm:discord.js";
+} from "discord.js";
 import CommandsRegister from "./regist-commands.mjs";
 
 const app = express();
