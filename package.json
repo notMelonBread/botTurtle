@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.mjs",
   "scripts": {
-    "start" : "node index.mjs"
+    "start" : "deno run -A index.mjs"
   },
   "dependencies": {
     "discord.js": "^14.14.1",
