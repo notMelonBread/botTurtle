@@ -81,5 +81,5 @@ client.on("ready", async () => {
   console.log(`${client.user.tag} がログインしました！`);
 });
 
-CommandsRegister();
+await CommandsRegister();
 client.login(process.env.TOKEN);
