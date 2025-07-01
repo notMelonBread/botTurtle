@@ -9,7 +9,7 @@ import {
   Partials, 
   ActivityType, 
   EmbedBuilder 
-} from "discord.js";
+} from "npm:discord.js";
 import CommandsRegister from "./regist-commands.mjs";
 
 const app = express();
