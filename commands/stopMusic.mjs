@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder } from 'npm:discord.js';
 import { connections } from './playMusic.mjs';
 
 export const data = new SlashCommandBuilder()

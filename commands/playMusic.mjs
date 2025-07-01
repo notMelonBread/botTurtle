@@ -1,11 +1,11 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder } from 'npm:discord.js';
 import { 
   joinVoiceChannel, 
   createAudioPlayer, 
   createAudioResource, 
   AudioPlayerStatus 
-} from '@discordjs/voice';
-import ytdl from 'ytdl-core';
+} from 'npm:@discordjs/voice';
+import ytdl from 'npm:ytdl-core';
 
 export const connections = new Map();
 

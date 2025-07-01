@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { REST, Routes } from 'discord.js';
+import { REST, Routes } from 'npm:discord.js';
 
 const commands = [];
 const commandsPath = path.join(process.cwd(), 'commands');
