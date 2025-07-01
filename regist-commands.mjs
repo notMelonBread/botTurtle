@@ -12,6 +12,7 @@ export default async() => {
     await import(filePath).then(module => {
       if (module.data) {
         commands.push(module.data.toJSON());
+        console.log(`[INIT] コマンド「${module.data.name}」を読み込みました。`);
       }
     }).catch(error => {
       console.error(`Failed to load command file ${file}:`, error);
