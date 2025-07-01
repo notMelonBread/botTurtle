@@ -2,6 +2,7 @@
   "name": "task-turtle",
   "version": "1.0.0",
   "description": "discord bot that encourage complete tasks",
+  "type": "module",
   "main": "index.mjs",
   "scripts": {
     "start" : "node index.mjs"
