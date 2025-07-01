@@ -5,7 +5,7 @@ import {
   createAudioResource, 
   AudioPlayerStatus 
 } from 'node:@discordjs/voice';
-import ytdl from 'ytdl-core';
+import ytdl from 'node:ytdl-core';
 
 export const connections = new Map();
 
