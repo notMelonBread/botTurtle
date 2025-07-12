@@ -16,17 +16,6 @@ import { startActivityChecker } from "./handlers/activityChecker.mjs";
 
 const app = express();
 app.get("/", (req, res) => res.send("Bot is running!"));
-app.get("/debug", (req, res) => {
-  res.json({
-    status: "running",
-    commands: Array.from(client.commands.keys()),
-    handlers: Array.from(handlers.keys()),
-    env: {
-      hasToken: !!process.env.TOKEN,
-      hasApplicationId: !!process.env.APPLICATION_ID
-    }
-  });
-});
 app.listen(3000);
 
 const client = new Client({
@@ -83,16 +72,11 @@ client.on("messageReactionAdd", async (reaction, user) => {
 });
 
 client.on("ready", async () => {
-  // データベースを同期
   await sequelize.sync();
-  console.log('📊 データベースが同期されました');
-  
-  // 活動チェッカーを開始
   await startActivityChecker(client);
-  
   await client.user.setActivity('🐢', { type: ActivityType.Custom, state: "🐢を飼育中" });
   console.log(`${client.user.tag} がログインしました！`);
 });
 
-await CommandsRegister();
+CommandsRegister();
 client.login(process.env.TOKEN);
