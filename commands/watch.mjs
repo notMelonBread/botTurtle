@@ -20,7 +20,6 @@ export async function execute(interaction) {
   const targetUser = interaction.options.getUser('user');
   const maxInactiveDays = interaction.options.getInteger('days') || 7;
   
-  // 自分自身を監視対象にすることはできない
   if (targetUser.id === interaction.user.id) {
     return await interaction.reply({
       content: '❌ 自分自身を監視対象にすることはできません。',
@@ -29,7 +28,6 @@ export async function execute(interaction) {
   }
 
   try {
-    // 既存の監視設定を確認
     const existingWatch = await WatchSettings.findOne({
       where: {
         guildId: interaction.guild.id,
@@ -45,7 +43,6 @@ export async function execute(interaction) {
       });
     }
 
-    // 新しい監視設定を作成
     await WatchSettings.create({
       guildId: interaction.guild.id,
       userId: targetUser.id,

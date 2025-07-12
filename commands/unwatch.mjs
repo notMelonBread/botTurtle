@@ -30,7 +30,6 @@ export async function execute(interaction) {
       });
     }
 
-    // 監視設定を無効化
     await existingWatch.update({
       isActive: false
     });
