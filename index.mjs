@@ -11,6 +11,8 @@ import {
   EmbedBuilder 
 } from "discord.js";
 import CommandsRegister from "./regist-commands.mjs";
+import { sequelize } from "./models/UserActivity.js";
+import { startActivityChecker } from "./handlers/activityChecker.mjs";
 
 const app = express();
 app.get("/", (req, res) => res.send("Bot is running!"));
@@ -72,11 +74,22 @@ client.on("interactionCreate", async (interaction) => {
   await handlers.get("interactionCreate").default(interaction);
 });
 
+client.on("messageCreate", async (message) => {
+  await handlers.get("messageCreate").default(message);
+});
+
 client.on("messageReactionAdd", async (reaction, user) => {
   await handlers.get("sendNote").default(reaction, user, client);
 });
 
 client.on("ready", async () => {
+  // データベースを同期
+  await sequelize.sync();
+  console.log('📊 データベースが同期されました');
+  
+  // 活動チェッカーを開始
+  await startActivityChecker(client);
+  
   await client.user.setActivity('🐢', { type: ActivityType.Custom, state: "🐢を飼育中" });
   console.log(`${client.user.tag} がログインしました！`);
 });
